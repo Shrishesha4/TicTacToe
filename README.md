@@ -7,7 +7,6 @@ This Python program allows you to play the classic game of Tic Tac Toe against a
 - Play against a computer opponent that makes intelligent moves.
 - Simple and intuitive interface.
 - Option to choose between playing as 'X' or 'O'.
-- Ability to restart the game at any time.
 
 ## How to Use
 
