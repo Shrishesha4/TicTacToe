@@ -8,13 +8,12 @@
   let winner: string | null = null;
   let gameOver = false;
   let moveSound: HTMLAudioElement;
+  let drawSound: HTMLAudioElement;
   let winSound: HTMLAudioElement;
+  let celebrationSound: HTMLAudioElement;
   let isAnimating = false;
   let showAnnouncement = false;
-
-
   let gameTitle = "Tic Tac Toe";
-  let celebrationSound: HTMLAudioElement;
   let winningCells: number[] = [];
   let titleClass = "";
   
@@ -22,28 +21,9 @@
     moveSound = new Audio('/sounds/move.mp3');
     celebrationSound = new Audio('/sounds/celebration.mp3');
     winSound = new Audio('/sounds/win.mp3');
+    drawSound = new Audio('/sounds/draw.wav');  // Add your draw sound file
     titleClass = "animate-bounce";
     setTimeout(() => titleClass = "", 1000);
-
-    // Updated Buy Me a Coffee Script
-    const script = document.createElement('script');
-    script.src = "https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js";
-    script.setAttribute('data-name', 'bmc-button');
-    script.setAttribute('data-slug', 'shrishesha4');
-    script.setAttribute('data-color', '#FF5F5F');
-    script.setAttribute('data-emoji', '');
-    script.setAttribute('data-font', 'Lato');
-    script.setAttribute('data-text', 'Buy me a coffee');
-    script.setAttribute('data-outline-color', '#000000');
-    script.setAttribute('data-font-color', '#ffffff');
-    script.setAttribute('data-coffee-color', '#FFDD00');
-    document.body.appendChild(script);
-
-    // Create the button container
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'fixed top-4 right-4 z-50';
-    buttonContainer.id = 'bmc-container';
-    document.body.appendChild(buttonContainer);
   });
 
   function minimax(board: string[], depth: number, isMaximizing: boolean): number {
@@ -82,38 +62,45 @@
     if (board[index] === '' && !gameOver && !isAnimating) {
       isAnimating = true;
       try {
-        await moveSound?.play();
+        await moveSound?.play();  // This will now play for both X and O
       } catch (error) {
         console.warn('Sound playback failed:', error);
       }
 
       board[index] = currentPlayer;
       board = [...board];
-
-      const result = checkWinner(board);
-      if (result) {
-        winner = result;
-        gameOver = true;
-        try {
-          await winSound?.play();
-          await celebrationSound?.play();
-        } catch (error) {
-          console.warn('Sound playback failed:', error);
-        }
-        updateScores(result);
-        showAnnouncement = true;
-        setTimeout(() => {
-          showAnnouncement = false;
-        }, 2000);
-      } else if (board.every(cell => cell !== '')) {
-        gameOver = true;
-        winner = 'tie';
-        updateScores('tie');
-        showAnnouncement = true;
-        setTimeout(() => {
-          showAnnouncement = false;
-        }, 2000);
-      } else {
+    
+    const result = checkWinner(board);
+    if (result) {
+      winner = result;
+      gameOver = true;
+      try {
+        await winSound?.play();
+        await celebrationSound?.play();
+      } catch (error) {
+        console.warn('Sound playback failed:', error);
+      }
+      updateScores(result);
+      showAnnouncement = true;
+      setTimeout(() => {
+        showAnnouncement = false;
+        resetGame();  // Auto reset after announcement
+      }, 2000);
+    } else if (board.every(cell => cell !== '')) {
+      gameOver = true;
+      winner = 'tie';
+      try {
+        await drawSound?.play();
+      } catch (error) {
+        console.warn('Sound playback failed:', error);
+      }
+      updateScores('tie');
+      showAnnouncement = true;
+      setTimeout(() => {
+        showAnnouncement = false;
+        resetGame();  // Auto reset after announcement
+      }, 2000);
+    } else {
         currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
         if ($gameState.gameMode === 'pvc' && currentPlayer === 'O') {
           setTimeout(async () => {
@@ -211,6 +198,22 @@
     <a href="https://instagram.com/shrishesha4" target="_blank" rel="noopener noreferrer" class="text-white hover:text-sky-400 transition-colors">
       <i class="fab fa-instagram text-2xl sm:text-3xl"></i>
     </a>
+    <div class="ml-24 fixed top-3 right-0 scale-50 sm:scale-75 transform-origin-top-right">
+      <script 
+        type="text/javascript" 
+        src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" 
+        data-name="bmc-button" 
+        data-slug="shrishesha4" 
+        data-color="#FF5F5F" 
+        data-emoji="" 
+        data-font="Lato" 
+        data-text="Buy me a coffee" 
+        data-outline-color="#000000" 
+        data-font-color="#ffffff" 
+        data-coffee-color="#FFDD00"
+      ></script>
+    </div>
+
   </div>
   
   <div class="container mx-auto px-2 sm:px-4 max-w-2xl">
@@ -299,21 +302,6 @@
           🎮 New Game
         </button>
       </div>
-    </div>
-    <div class="fixed top-2 right-2 sm:top-4 sm:right-4 z-50 scale-50 sm:scale-75 transform-origin-top-right">
-      <script 
-        type="text/javascript" 
-        src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" 
-        data-name="bmc-button" 
-        data-slug="shrishesha4" 
-        data-color="#FF5F5F" 
-        data-emoji="" 
-        data-font="Lato" 
-        data-text="Buy me a coffee" 
-        data-outline-color="#000000" 
-        data-font-color="#ffffff" 
-        data-coffee-color="#FFDD00"
-      ></script>
     </div>
   </div>
   {#if showAnnouncement}
